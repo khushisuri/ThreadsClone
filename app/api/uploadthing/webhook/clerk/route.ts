@@ -70,7 +70,7 @@ export const POST = async (request: Request) => {
 
     try {
       // @ts-ignore
-      const data =  
+    //  const data =  
     //   await createCommunity(
     //     // @ts-ignore
     //     {id:id,

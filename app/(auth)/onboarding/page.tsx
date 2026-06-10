@@ -1,19 +1,27 @@
 import AccountProfile from "@/components/shared/AccountProfile";
 import { currentUser } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 
 const OnboardingPage = async () => {
   const user = await currentUser();
-  
-  const userValues = {};
+  if (!user) redirect("/sign-in");
+
+  const userValues: {
+    _id?: string;
+    username?: string;
+    name?: string;
+    bio?: string;
+    image?: string;
+    onboarded?: boolean;
+  } = {};
 
   const userData = {
-    id: user?.id,
-    objectId: userValues?._id,
-    username: userValues?.username || user?.username,
-    name: userValues?.name || user?.fullName,
-    bio: userValues?.bio || "",
-    //onboarded: userValues?.onboarded || false,
-    image: userValues?.image || user?.imageUrl,
+    id: user.id,
+    objectId: userValues._id ?? "",
+    username: userValues.username ?? user.username ?? "",
+    name: userValues.name ?? user.fullName ?? "",
+    bio: userValues.bio ?? "",
+    image: userValues.image ?? user.imageUrl ?? "",
   };
   return (
     <div className="bg-neutral-950 mx-auto py-10 px-6 flex flex-col text-white h-screen">

@@ -2,7 +2,6 @@
 import { revalidatePath } from "next/cache";
 import User from "../models/user.model";
 import { connectToDb } from "../moongoose";
-import { type FilterQuery } from "mongoose";
 import Thread from "../models/thread.model";
 interface params {
   id: string;
@@ -55,7 +54,7 @@ export async function fetchUser(id: string) {
 export async function fetchUserBySearch(search: string, userId: string) {
   try {
     await connectToDb();
-    const query: FilterQuery<typeof User> = {
+    const query: Record<string, unknown> = {
       id: { $ne: userId },
     };
 
