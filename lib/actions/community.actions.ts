@@ -1,31 +1,38 @@
 import { revalidatePath } from "next/cache";
 import Community from "../models/commmunity.model";
 import { connectToDb } from "../moongoose";
+import User from "../models/user.model";
 
 export const createCommunity = async (data: {
   id: string;
-  username: string;
   name: string;
-  bio: string;
   createdBy: string;
   image: string;
   members: string[];
   pathname: string;
 }) => {
   try {
-    connectToDb();
-    const { username, name, bio, createdBy, image, members, pathname } = data;
+    await connectToDb();
+    const { id, name, createdBy, image, members, pathname } = data;
+    const user = await User.findOne({ id: createdBy });
+    if (!user) {
+      throw new Error("User not found");
+    }
+    const membersArr = [...members, user._id];
     const newCommunity = new Community({
-      username,
+      id,
       name,
-      bio,
-      createdBy,
+      createdBy: user._id,
       image,
-      members,
+      members: membersArr,
     });
 
     await newCommunity.save();
+
+    user.communities.push(newCommunity._id);
+    await user.save();
     revalidatePath(pathname);
+    return newCommunity;
   } catch (error) {
     throw new Error("Error creating community: " + error);
   }
@@ -33,7 +40,7 @@ export const createCommunity = async (data: {
 
 export const fetchCommunities = async () => {
   try {
-    connectToDb();
+    await connectToDb();
     const communities = await Community.find()
       .populate("createdBy")
       .populate({ path: "members", model: "User" })

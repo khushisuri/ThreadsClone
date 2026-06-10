@@ -35,7 +35,7 @@ type Event = {
 };
 
 export const POST = async (request: Request) => {
-  const payload = await request.json();
+  const body = await request.text();
   const header = headers();
 
   const heads = {
@@ -44,15 +44,13 @@ export const POST = async (request: Request) => {
     "svix-signature": (await header).get("svix-signature"),
   };
 
-  // Activitate Webhook in the Clerk Dashboard.
-  // After adding the endpoint, you'll see the secret on the right side.
   const wh = new Webhook(process.env.NEXT_CLERK_WEBHOOK_SECRET || "");
 
   let evnt: Event | null = null;
 
   try {
     evnt = wh.verify(
-      JSON.stringify(payload),
+      body,
       heads as IncomingHttpHeaders & WebhookRequiredHeaders
     ) as Event;
   } catch (err) {
@@ -70,26 +68,20 @@ export const POST = async (request: Request) => {
 
   // Listen organization creation event
   if (eventType === "organization.created") {
-    // Resource: https://clerk.com/docs/reference/backend-api/tag/Organizations#operation/CreateOrganization
-    // Show what evnt?.data sends from above resource
     const { id, name, slug, logo_url, image_url, created_by } =
       evnt?.data ?? {};
 
     try {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-    //  const data =  
-    //   await createCommunity(
-    //     // @ts-ignore
-    //     {id:id,
-    //     name:name,
-    //     slug,
-    //     image:logo_url || image_url,
-    //     "org bio",
-    //     created_by
-    // });
-     console.log(evnt?.data);
-      //return NextResponse.json({ message: "User created" }, { status: 201 });
+      await createCommunity({
+        id: id as string,
+        name: name as string,
+        createdBy: created_by as string,
+        image: (logo_url || image_url) as string,
+        members: [],
+        pathname: "/communities",
+      });
+
+      return NextResponse.json({ message: "Community created" }, { status: 201 });
     } catch (err) {
       console.log(err);
       return NextResponse.json(
