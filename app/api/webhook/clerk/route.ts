@@ -36,12 +36,12 @@ type Event = {
 
 export const POST = async (request: Request) => {
   const body = await request.text();
-  const header = headers();
+  const headersList = await headers();
 
   const heads = {
-    "svix-id": (await header).get("svix-id"),
-    "svix-timestamp": (await header).get("svix-timestamp"),
-    "svix-signature": (await header).get("svix-signature"),
+    "svix-id": headersList.get("svix-id"),
+    "svix-timestamp": headersList.get("svix-timestamp"),
+    "svix-signature": headersList.get("svix-signature"),
   };
 
   const wh = new Webhook(process.env.NEXT_CLERK_WEBHOOK_SECRET || "");
@@ -54,7 +54,9 @@ export const POST = async (request: Request) => {
       heads as IncomingHttpHeaders & WebhookRequiredHeaders
     ) as Event;
   } catch (err) {
-    return NextResponse.json({ message: err }, { status: 400 });
+    const message = err instanceof Error ? err.message : String(err);
+    console.error("Webhook verification failed:", message);
+    return NextResponse.json({ message }, { status: 400 });
   }
 
   if (!evnt || !evnt.type) {
@@ -83,11 +85,9 @@ export const POST = async (request: Request) => {
 
       return NextResponse.json({ message: "Community created" }, { status: 201 });
     } catch (err) {
-      console.log(err);
-      return NextResponse.json(
-        { message: "Internal Server Error" },
-        { status: 500 }
-      );
+      const message = err instanceof Error ? err.message : String(err);
+      console.error("organization.created error:", message);
+      return NextResponse.json({ message }, { status: 500 });
     }
   }
 
