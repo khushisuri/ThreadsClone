@@ -3,7 +3,7 @@ import Community from "../models/commmunity.model";
 import { connectToDb } from "../moongoose";
 import User from "../models/user.model";
 import Thread from "../models/thread.model";
-import { FilterQuery, SortOrder } from "mongoose";
+import { SortOrder } from "mongoose";
 
 export const createCommunity = async (data: {
   id: string;
@@ -115,7 +115,7 @@ export async function fetchCommunities({
     const regex = new RegExp(searchString, "i");
 
     // Create an initial query object to filter communities.
-    const query: FilterQuery<typeof Community> = {};
+    const query: Record<string, unknown> = {};
 
     // If the search string is not empty, add the $or operator to match either username or name fields.
     if (searchString.trim() !== "") {
