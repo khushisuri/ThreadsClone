@@ -5,6 +5,16 @@ import ThreadCard from "@/components/shared/ThreadCard";
 import CommentForm from "@/components/shared/CommentForm";
 import { redirect } from "next/navigation";
 
+
+interface Thread {
+  _id: string;
+  text: string;
+  parentId: string | null;
+  author: { id: string; image: string; username: string };
+  community: { id: string; name: string; image: string };
+  createdAt: string;
+  children: { author: { image: string } }[];
+}
 const page = async ({ params }: { params: { id: string } }) => {
   const user = await currentUser();
 
@@ -45,7 +55,7 @@ const page = async ({ params }: { params: { id: string } }) => {
         currentUserId={userValues._id.toString()}
       />
       <div className="mt-6">
-      {thread.children.map((comment: any) => (
+      {thread.children.map((comment: Thread) => (
         <ThreadCard
           id={comment._id}
           currentUserId={user.id}
