@@ -11,11 +11,11 @@ import { IncomingHttpHeaders } from "http";
 
 import { NextResponse } from "next/server";
 import {
-  //addMemberToCommunity,
+  addMemberToCommunity,
   createCommunity,
-  //deleteCommunity,
-  //removeUserFromCommunity,
-  //updateCommunityInfo,
+  deleteCommunity,
+  removeUserFromCommunity,
+  updateCommunityInfo,
 } from "../../../../lib/actions/community.actions";
 
 // Resource: https://clerk.com/docs/integration/webhooks#supported-events
